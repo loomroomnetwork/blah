@@ -124,9 +124,10 @@
   }
   footer a { border-bottom: 1px solid var(--line); }
   footer a:hover { border-bottom-color: var(--ink); color: var(--ink); }
-  .sns { margin-top: 14px; }
-  .sns a { margin: 0 8px; border: none; }
-  .sns a:hover { color: var(--accent); }
+  .sns { margin-top: 16px; display: flex; justify-content: center; gap: 22px; }
+  .sns a { border: none; line-height: 0; }
+  .sns svg { width: 22px; height: 22px; fill: var(--ink); transition: fill .18s ease, transform .18s ease; }
+  .sns a:hover svg { fill: var(--accent); transform: translateY(-2px); }
 
   @media (max-width: 480px) {
     main { padding-top: 8vh; }
@@ -218,8 +219,15 @@
     <p>업무 문의 · booking &amp; press</p>
     <p><a href="mailto:loomroomnetwork@gmail.com">loomroomnetwork@gmail.com</a></p>
     <div class="sns">
-      <a href="https://www.instagram.com/blah__h/" target="_blank">instagram</a>
-      <a href="https://youtube.com/@blah-np5hr" target="_blank">youtube</a>
+      <a href="https://youtube.com/@blah-np5hr" target="_blank" aria-label="YouTube">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4L15.8 12l-6.2 3.6z"/></svg>
+      </a>
+      <a href="https://www.instagram.com/blah__h/" target="_blank" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4a3.8 3.8 0 0 1-1.4-.9 3.8 3.8 0 0 1-.9-1.4c-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 2A7.8 7.8 0 1 0 12 20 7.8 7.8 0 0 0 12 4.2zm0 2.9a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm6.4-3.1a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0z" fill-rule="evenodd"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@blah__h" target="_blank" aria-label="TikTok">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.6 5.8a5.4 5.4 0 0 1-3.2-2.9 5.5 5.5 0 0 1-.4-1.9h-3.5v13.9a3 3 0 0 1-3 2.9 3 3 0 0 1-3-3 3 3 0 0 1 3.9-2.8V8.4a6.5 6.5 0 0 0-.9-.1 6.5 6.5 0 1 0 6.5 6.5V8.5a8.8 8.8 0 0 0 5 1.6V6.6a5.4 5.4 0 0 1-1.4-.8z"/></svg>
+      </a>
     </div>
     <p style="margin-top:24px">© 2026 blah ✿</p>
   </footer>
