@@ -83,18 +83,29 @@
   .show-title .tag { color: var(--soft); font-size: 12px; margin-left: 8px; }
   .show-note { font-size: 11px; color: var(--soft); letter-spacing: .18em; text-transform: uppercase; margin-top: 3px; }
 
-  .show-photos {
-    display: flex; gap: 8px; margin-top: 14px;
-    overflow-x: auto; padding-bottom: 4px;
-    scrollbar-width: none;
+  /* 사진 캐러셀: 가운데 큰 사진 + 좌우 작은 사진, 좌/우 클릭으로 넘김 */
+  .carousel {
+    margin-top: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
   }
-  .show-photos::-webkit-scrollbar { display: none; }
-  .show-photos img {
-    height: 132px; width: auto; flex-shrink: 0;
-    border-radius: 8px; object-fit: cover; cursor: zoom-in;
-    transition: transform .18s ease, box-shadow .18s ease;
+  .carousel figure {
+    margin: 0; border-radius: 10px; overflow: hidden;
+    background: var(--line); flex-shrink: 0;
   }
-  .show-photos img:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(26,26,26,.13); }
+  .carousel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .car-side {
+    width: 18%; aspect-ratio: 3 / 4; opacity: .45; cursor: pointer;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .car-side:hover { opacity: .8; transform: translateY(-2px); }
+  .car-main {
+    width: 58%; aspect-ratio: 3 / 4; cursor: zoom-in;
+    box-shadow: 0 8px 26px rgba(26,26,26,.12);
+  }
+  .car-main img { transition: opacity .22s ease; }
+  .car-dots { text-align: center; margin-top: 10px; color: var(--line); font-size: 11px; letter-spacing: .4em; }
+  .car-dots span { cursor: pointer; }
+  .car-dots .on { color: var(--accent); }
 
   /* ─ 라이트박스 ─ */
   #lightbox {
@@ -282,12 +293,13 @@
 
     <div class="show">
       <p class="show-title">07.18 club evans <span class="tag">서울 마포구 와우산로 63</span></p>
-      <div class="show-photos">
-        <img src="piano.png" alt="">
-        <img src="rehearsal.png" alt="">
-        <img src="postits.png" alt="">
-        <img src="towel.png" alt="">
+      <!-- 좌/우 사진 클릭 = 넘기기, 가운데 사진 클릭 = 크게 보기 -->
+      <div class="carousel">
+        <figure class="car-side" id="carPrev"><img src="" alt=""></figure>
+        <figure class="car-main" id="carMain"><img src="piano.png" alt=""></figure>
+        <figure class="car-side" id="carNext"><img src="" alt=""></figure>
       </div>
+      <div class="car-dots" id="carDots"></div>
     </div>
 
     <div class="show">
@@ -407,11 +419,34 @@
 </div>
 
 <script>
-  /* ── 사진 크게 보기 ── */
+  /* ── 사진 캐러셀 ── */
+  const photos = ["piano.png", "rehearsal.png", "postits.png", "towel.png"];
+  let pIdx = 0;
+  const mainEl = document.querySelector("#carMain img");
+  const prevEl = document.querySelector("#carPrev img");
+  const nextEl = document.querySelector("#carNext img");
+  const dotsEl = document.getElementById("carDots");
+
+  function renderCar() {
+    const n = photos.length;
+    mainEl.src = photos[pIdx];
+    prevEl.src = photos[(pIdx - 1 + n) % n];
+    nextEl.src = photos[(pIdx + 1) % n];
+    dotsEl.innerHTML = photos.map((_, i) =>
+      `<span class="${i === pIdx ? "on" : ""}" data-i="${i}">●</span>`).join(" ");
+  }
+  document.getElementById("carPrev").addEventListener("click", () => { pIdx = (pIdx - 1 + photos.length) % photos.length; renderCar(); });
+  document.getElementById("carNext").addEventListener("click", () => { pIdx = (pIdx + 1) % photos.length; renderCar(); });
+  dotsEl.addEventListener("click", e => {
+    if (e.target.dataset.i !== undefined) { pIdx = Number(e.target.dataset.i); renderCar(); }
+  });
+  renderCar();
+
+  /* ── 가운데 사진 크게 보기 ── */
   const lb = document.getElementById("lightbox");
   const lbImg = lb.querySelector("img");
-  document.querySelectorAll(".show-photos img").forEach(img => {
-    img.addEventListener("click", () => { lbImg.src = img.src; lb.classList.add("on"); });
+  document.getElementById("carMain").addEventListener("click", () => {
+    lbImg.src = photos[pIdx]; lb.classList.add("on");
   });
   lb.addEventListener("click", () => lb.classList.remove("on"));
   document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
