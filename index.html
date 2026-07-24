@@ -5,12 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>blah</title>
 <meta name="description" content="blah — music, live, goods">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
 <!-- ═══════════════════════════════════════════════════════
      blah official — 수정 방법
      · 링크 바꾸기: href="..." 부분만 실제 주소로 교체
      · 굿즈 추가: <li class="item"> 블록 복사해서 붙여넣기
-     · 결제 붙이기: 굿즈 링크에 Stripe Payment Link 또는
-       스마트스토어/빅카텔 상품 주소를 넣으면 끝
+     · 사진 교체: piano.png / rehearsal.png / postits.png / towel.png
+       파일명을 그대로 두고 이미지만 바꾸면 됨 (같은 폴더에 위치)
      ═══════════════════════════════════════════════════════ -->
 <style>
   :root {
@@ -19,6 +22,7 @@
     --soft: #8a8478;      /* 흐린 글자 */
     --accent: #e8a4b8;    /* 포인트 핑크 */
     --line: #e5dfd5;      /* 구분선 */
+    --red: #c0392b;       /* sold out */
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -34,22 +38,24 @@
   a { color: inherit; text-decoration: none; }
   main { max-width: 560px; margin: 0 auto; padding: 12vh 24px 15vh; }
 
-  /* ─ 로고 ─ */
+  /* ─ 로고 (필기체) ─ */
   header { text-align: center; margin-bottom: 10vh; }
   .logo {
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: .12em;
+    font-family: "Alex Brush", cursive;
+    font-size: 76px;
+    font-weight: 400;
+    letter-spacing: .02em;
     display: inline-block;
+    line-height: 1.1;
   }
   .logo::after {
     content: "✿";
     color: var(--accent);
-    font-size: 14px;
+    font-size: 15px;
     vertical-align: super;
-    margin-left: 4px;
+    margin-left: 6px;
   }
-  header nav { color: var(--soft); font-size: 12px; margin-top: 6px; letter-spacing: .25em; text-transform: uppercase; }
+  header nav { color: var(--soft); font-size: 12px; margin-top: 10px; letter-spacing: .25em; text-transform: uppercase; }
   header nav a { transition: color .18s ease; }
   header nav a:hover { color: var(--accent); }
 
@@ -68,7 +74,7 @@
 
   ul { list-style: none; text-align: center; }
 
-  /* ─ 텍스트 링크 (blonded 스타일) ─ */
+  /* ─ 텍스트 링크 ─ */
   .links li { padding: 7px 0; }
   .links a {
     display: inline-block;
@@ -80,7 +86,6 @@
     transform: translateY(-1px);
   }
   .links .tag { color: var(--soft); font-size: 12px; margin-left: 8px; }
-  .soldout { color: var(--soft); text-decoration: line-through; }
   .new::after { content: " ✦"; color: var(--accent); font-size: 11px; }
 
   /* ─ 영상 ─ */
@@ -94,25 +99,77 @@
   }
   .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+  /* ─ 라이브 사진 캐러셀 ─
+     가운데 큰 사진 + 좌우 작은 사진.
+     좌/우 사진을 클릭하면 그 방향으로 넘어감. */
+  .carousel {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .carousel figure {
+    margin: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--line);
+    flex-shrink: 0;
+  }
+  .carousel img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .car-side {
+    width: 18%;
+    aspect-ratio: 3 / 4;
+    opacity: .45;
+    cursor: pointer;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  .car-side:hover { opacity: .8; transform: translateY(-2px); }
+  .car-main {
+    width: 58%;
+    aspect-ratio: 3 / 4;
+    box-shadow: 0 8px 26px rgba(26,26,26,.12);
+    transition: opacity .25s ease;
+  }
+  .car-dots { text-align: center; margin-top: 12px; color: var(--line); font-size: 11px; letter-spacing: .4em; }
+  .car-dots span { cursor: pointer; }
+  .car-dots .on { color: var(--accent); }
+
   /* ─ 굿즈 ─ */
   .shop { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .item a { display: block; transition: transform .18s ease; }
-  .item a:hover { transform: translateY(-3px); }
+  .item { text-align: center; }
   .thumb {
+    position: relative;
     aspect-ratio: 1 / 1;
     background: #f0ebe2;
     border: 1px solid var(--line);
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
     margin-bottom: 10px;
     overflow: hidden;
   }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
   .item .name { font-size: 13px; }
   .item .price { font-size: 12px; color: var(--soft); }
+
+  /* 품절 처리 */
+  .item.soldout .thumb img { opacity: .55; filter: saturate(.5); }
+  .item.soldout .price { text-decoration: line-through; }
+  .stamp {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-8deg);
+    color: var(--red);
+    border: 2.5px solid var(--red);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    background: rgba(250,247,242,.55);
+    white-space: nowrap;
+  }
+  .state { font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--red); text-transform: uppercase; margin-top: 2px; }
 
   /* ─ 푸터 ─ */
   footer {
@@ -124,14 +181,17 @@
   }
   footer a { border-bottom: 1px solid var(--line); }
   footer a:hover { border-bottom-color: var(--ink); color: var(--ink); }
-  .sns { margin-top: 16px; display: flex; justify-content: center; gap: 22px; }
+  .sns { margin-top: 16px; margin-bottom: 26px; display: flex; justify-content: center; gap: 22px; }
   .sns a { border: none; line-height: 0; }
   .sns svg { width: 22px; height: 22px; fill: var(--ink); transition: fill .18s ease, transform .18s ease; }
   .sns a:hover svg { fill: var(--accent); transform: translateY(-2px); }
 
   @media (max-width: 480px) {
     main { padding-top: 8vh; }
+    .logo { font-size: 60px; }
     .shop { gap: 14px; }
+    .car-side { width: 16%; }
+    .car-main { width: 62%; }
   }
 </style>
 </head>
@@ -175,48 +235,45 @@
       <li>08.22 tone studio <span class="tag">서울 마포구 성산동 239-13</span></li>
       <li>09.12 cj azit <span class="tag">서울 마포구 창전로 14</span></li>
     </ul>
+
+    <!-- 라이브 사진: 좌/우 사진 클릭으로 이동 -->
+    <div class="carousel">
+      <figure class="car-side" id="carPrev"><img src="" alt="이전 사진"></figure>
+      <figure class="car-main" id="carMain"><img src="piano.png" alt="blah live"></figure>
+      <figure class="car-side" id="carNext"><img src="" alt="다음 사진"></figure>
+    </div>
+    <div class="car-dots" id="carDots"></div>
   </section>
 
   <!-- ─────────── 굿즈 ───────────
-       지금: 외부 판매 페이지(스마트스토어·빅카텔 등) 링크
-       나중: href에 Stripe Payment Link를 넣으면 바로 결제 가능 -->
+       판매 재개 시: soldout 클래스 지우고 <a href="판매주소">로 감싸기 -->
   <section id="shop">
     <h2>Goods</h2>
     <ul class="shop">
-      <li class="item">
-        <a href="https://smartstore.naver.com/" target="_blank">
-          <div class="thumb">🧸</div> <!-- <img src="goods1.jpg" alt=""> 로 교체 -->
-          <div class="name">blah 키링</div>
-          <div class="price">₩12,000</div>
-        </a>
+      <li class="item soldout">
+        <div class="thumb">
+          <img src="normal-life-cd.png" alt="4th EP Normal Life CD">
+          <span class="stamp">Sold Out</span>
+        </div>
+        <div class="name">4th EP 『Normal Life』 CD</div>
+        <div class="price">₩22,000</div>
+        <div class="state">Sold Out</div>
       </li>
-      <li class="item">
-        <a href="https://smartstore.naver.com/" target="_blank">
-          <div class="thumb">👕</div>
-          <div class="name">투어 티셔츠</div>
-          <div class="price">₩35,000</div>
-        </a>
-      </li>
-      <li class="item">
-        <a href="https://smartstore.naver.com/" target="_blank">
-          <div class="thumb">💿</div>
-          <div class="name">1st EP (CD)</div>
-          <div class="price">₩18,000</div>
-        </a>
-      </li>
-      <li class="item">
-        <a href="https://smartstore.naver.com/" target="_blank">
-          <div class="thumb">📮</div>
-          <div class="name">엽서 세트</div>
-          <div class="price">₩8,000</div>
-        </a>
+      <li class="item soldout">
+        <div class="thumb">
+          <img src="archive-lp.png" alt="23-26 Archive LP">
+          <span class="stamp">Sold Out</span>
+        </div>
+        <div class="name">『23–26 Archive』 LP</div>
+        <div class="price">₩48,000</div>
+        <div class="state">Sold Out</div>
       </li>
     </ul>
   </section>
 
   <!-- ─────────── 연락처 ─────────── -->
   <footer>
-    <p>업무 문의 · booking &amp; press</p>
+    <p>contact</p>
     <p><a href="mailto:loomroomnetwork@gmail.com">loomroomnetwork@gmail.com</a></p>
     <div class="sns">
       <a href="https://youtube.com/@blah-np5hr" target="_blank" aria-label="YouTube">
@@ -225,13 +282,45 @@
       <a href="https://www.instagram.com/blah__h/" target="_blank" aria-label="Instagram">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.2-2.2-.4a3.8 3.8 0 0 1-1.4-.9 3.8 3.8 0 0 1-.9-1.4c-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0 2A7.8 7.8 0 1 0 12 20 7.8 7.8 0 0 0 12 4.2zm0 2.9a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm6.4-3.1a1.4 1.4 0 1 1-2.8 0 1.4 1.4 0 0 1 2.8 0z" fill-rule="evenodd"/></svg>
       </a>
-      <a href="https://www.tiktok.com/@blah__h" target="_blank" aria-label="TikTok">
+      <a href="https://www.tiktok.com/@blah___h" target="_blank" aria-label="TikTok">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.6 5.8a5.4 5.4 0 0 1-3.2-2.9 5.5 5.5 0 0 1-.4-1.9h-3.5v13.9a3 3 0 0 1-3 2.9 3 3 0 0 1-3-3 3 3 0 0 1 3.9-2.8V8.4a6.5 6.5 0 0 0-.9-.1 6.5 6.5 0 1 0 6.5 6.5V8.5a8.8 8.8 0 0 0 5 1.6V6.6a5.4 5.4 0 0 1-1.4-.8z"/></svg>
       </a>
     </div>
-    <p style="margin-top:24px">© 2026 blah ✿</p>
+    <p>© 2026 LoomRoomNetwork. All rights reserved.</p>
   </footer>
 
 </main>
+
+<script>
+  // 라이브 사진 캐러셀: 좌/우 클릭으로 순환
+  const photos = [
+    { src: "piano.png",     alt: "club evans 피아노 무대" },
+    { src: "rehearsal.png", alt: "리허설" },
+    { src: "postits.png",   alt: "관객 포스트잇" },
+    { src: "towel.png",     alt: "blah 슬로건" },
+  ];
+  let idx = 0;
+  const mainEl = document.querySelector("#carMain img");
+  const prevEl = document.querySelector("#carPrev img");
+  const nextEl = document.querySelector("#carNext img");
+  const dotsEl = document.getElementById("carDots");
+
+  function render() {
+    const n = photos.length;
+    const prev = photos[(idx - 1 + n) % n];
+    const next = photos[(idx + 1) % n];
+    mainEl.src = photos[idx].src; mainEl.alt = photos[idx].alt;
+    prevEl.src = prev.src; prevEl.alt = prev.alt;
+    nextEl.src = next.src; nextEl.alt = next.alt;
+    dotsEl.innerHTML = photos.map((_, i) =>
+      `<span class="${i === idx ? "on" : ""}" data-i="${i}">●</span>`).join(" ");
+  }
+  document.getElementById("carPrev").addEventListener("click", () => { idx = (idx - 1 + photos.length) % photos.length; render(); });
+  document.getElementById("carNext").addEventListener("click", () => { idx = (idx + 1) % photos.length; render(); });
+  dotsEl.addEventListener("click", e => {
+    if (e.target.dataset.i !== undefined) { idx = Number(e.target.dataset.i); render(); }
+  });
+  render();
+</script>
 </body>
 </html>
