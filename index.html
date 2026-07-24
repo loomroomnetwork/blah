@@ -151,85 +151,32 @@
   .sns svg { width: 22px; height: 22px; fill: var(--ink); transition: fill .18s ease, transform .18s ease; }
   .sns a:hover svg { fill: var(--accent); transform: translateY(-2px); }
 
-  /* ═══════ 돌아다니는 캐릭터 ═══════
-     상태: 앉아서 책 읽기(원본 그림) → 책 덮고 일어남 → 걷기(다리 달린 SVG) → 다시 앉아 읽기 */
+  /* ═══════ 돌아다니는 캐릭터 (시트 원본 스프라이트) ═══════ */
   #buddy {
     position: fixed; bottom: 10px; left: 40px;
-    width: 62px; height: 78px; z-index: 150;
-    cursor: pointer; user-select: none;
+    height: 80px; z-index: 150;
+    display: flex; align-items: flex-end;
+    cursor: grab; user-select: none; touch-action: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .pose { position: absolute; inset: auto 0 0 0; transition: opacity .28s ease; }
-  .pose img, .pose svg { width: 100%; height: auto; display: block; pointer-events: none; }
-
-  /* 앉아서 책 읽는 포즈 (원본 일러스트) */
-  #poseSit { opacity: 1; transform-origin: bottom center; animation: readSway 4.2s ease-in-out infinite; }
-  @keyframes readSway {          /* 책장 넘기듯 아주 미세하게 */
-    0%, 100% { transform: rotate(0deg) scale(1); }
-    50%      { transform: rotate(-1.3deg) scale(1.012); }
+  #buddy.dragging { cursor: grabbing; }
+  #buddy img { width: auto; display: block; pointer-events: none; }
+  #buddy.bob img { animation: stepBob .36s ease-in-out infinite; }
+  @keyframes stepBob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-2.5px); }
   }
-  /* 일어나기 직전: 책 탁 덮는 느낌의 살짝 움찔 */
-  #buddy.closing #poseSit { animation: closeBook .45s ease; }
-  @keyframes closeBook {
-    0%   { transform: rotate(0); }
-    35%  { transform: rotate(3.5deg) scale(.97, 1.02); }
-    70%  { transform: rotate(-2deg) scale(1.03, .97); }
-    100% { transform: rotate(0); }
-  }
-
-  /* 걷는 포즈 (SVG) */
-  #poseWalk { opacity: 0; }
-  #buddy.walking #poseSit  { opacity: 0; }
-  #buddy.walking #poseWalk { opacity: 1; }
-
-  /* 일어날 때 쑥 올라오는 느낌 */
-  #buddy.walking #poseWalk { animation: standUp .4s cubic-bezier(.3,1.3,.5,1); }
-  @keyframes standUp {
-    0%   { transform: translateY(10px) scale(.92, .9); }
-    60%  { transform: translateY(-3px) scale(.98, 1.04); }
-    100% { transform: translateY(0) scale(1, 1); }
-  }
-
-  /* 걸음: 몸통 흔들림 + 발 교차 (걸을 때만 재생) */
-  #buddy.walking .w-body { animation: stride .52s ease-in-out infinite; transform-origin: 50% 92%; }
-  @keyframes stride {
-    0%, 100% { transform: translateY(0) rotate(-2.4deg); }
-    25%      { transform: translateY(-2.6px) rotate(0deg); }
-    50%      { transform: translateY(0) rotate(2.4deg); }
-    75%      { transform: translateY(-2.6px) rotate(0deg); }
-  }
-  #buddy.walking .w-footL { animation: stepL .52s ease-in-out infinite; transform-origin: 50% 0%; }
-  #buddy.walking .w-footR { animation: stepR .52s ease-in-out infinite; transform-origin: 50% 0%; }
-  @keyframes stepL {
-    0%, 100% { transform: translate(3px, 0); }
-    25%      { transform: translate(0, -5px); }
-    50%      { transform: translate(-3px, 0); }
-    75%      { transform: translate(0, 0); }
-  }
-  @keyframes stepR {
-    0%, 100% { transform: translate(-3px, 0); }
-    25%      { transform: translate(0, 0); }
-    50%      { transform: translate(3px, 0); }
-    75%      { transform: translate(0, -5px); }
-  }
-  /* 잎사귀도 걸음에 맞춰 찰랑 */
-  #buddy.walking .w-sprout { animation: sproutSway .52s ease-in-out infinite; transform-origin: 50% 100%; }
-  @keyframes sproutSway {
-    0%, 100% { transform: rotate(3deg); }
-    50%      { transform: rotate(-3deg); }
-  }
-
-  /* 클릭 시 폴짝 */
-  #buddy.hop { animation: hop .5s cubic-bezier(.3,1.4,.5,1); }
-  @keyframes hop {
+  #buddy.hop img { animation: hopUp .5s cubic-bezier(.3,1.4,.5,1); }
+  @keyframes hopUp {
     0%   { transform: translateY(0); }
     35%  { transform: translateY(-20px); }
     100% { transform: translateY(0); }
   }
+  #buddy.landing { transition: bottom .22s cubic-bezier(.3,1.3,.5,1), left .22s ease; }
 
   #bubble {
     position: absolute; bottom: 100%; left: 50%;
-    transform: translate(-50%, -6px);
+    transform: translate(-50%, -8px);
     background: var(--bg); border: 1px solid var(--line);
     border-radius: 12px; padding: 5px 11px;
     font-size: 11px; color: var(--ink); white-space: nowrap;
@@ -244,8 +191,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #poseSit, #buddy.walking .w-body, #buddy.walking .w-footL,
-    #buddy.walking .w-footR, #buddy.walking .w-sprout { animation: none; }
+    #buddy.bob img { animation: none; }
   }
   @media (max-width: 480px) {
     main { padding-top: 8vh; }
@@ -361,61 +307,10 @@
 <!-- 사진 크게 보기 -->
 <div id="lightbox"><img src="" alt=""></div>
 
-<!-- 돌아다니는 캐릭터 -->
+<!-- 돌아다니는 캐릭터 (시트 스프라이트) -->
 <div id="buddy">
   <div id="bubble"></div>
-
-  <!-- 앉아서 책 읽는 중 (원본 그림) -->
-  <div class="pose" id="poseSit"><img src="character.png" alt=""></div>
-
-  <!-- 걷는 중 (같은 스타일로 그린 SVG — 다리가 실제로 움직임) -->
-  <div class="pose" id="poseWalk">
-    <svg viewBox="0 0 120 150" xmlns="http://www.w3.org/2000/svg">
-      <!-- 발 -->
-      <g class="w-footL">
-        <ellipse cx="44" cy="139" rx="13" ry="8.5" fill="#f6f2e9" stroke="#cdc5b6" stroke-width="2"/>
-      </g>
-      <g class="w-footR">
-        <ellipse cx="76" cy="139" rx="13" ry="8.5" fill="#f1ece1" stroke="#cdc5b6" stroke-width="2"/>
-      </g>
-      <!-- 몸통 -->
-      <g class="w-body">
-        <!-- 새싹 -->
-        <g class="w-sprout">
-          <path d="M60 30 C60 22 60 16 60 12" fill="none" stroke="#7d9861" stroke-width="3.4" stroke-linecap="round"/>
-          <path d="M60 14 C52 6 40 6 34 10 C40 18 52 20 60 14 Z" fill="#89a56c" stroke="#6f8a55" stroke-width="1.6"/>
-          <path d="M60 13 C67 4 79 3 86 7 C81 16 68 19 60 13 Z" fill="#9db97e" stroke="#6f8a55" stroke-width="1.6"/>
-        </g>
-        <!-- 몸 (서 있는 물방울 모양) -->
-        <path d="M60 28
-                 C82 28 96 52 97 84
-                 C98 114 82 132 60 132
-                 C38 132 22 114 23 84
-                 C24 52 38 28 60 28 Z"
-              fill="#f8f4eb" stroke="#cdc5b6" stroke-width="2.4"/>
-        <!-- 몸 음영 -->
-        <path d="M82 44 C92 58 94 80 92 98 C90 114 82 124 72 128
-                 C86 120 92 102 91 82 C90 64 86 52 82 44 Z"
-              fill="#eae4d6" opacity=".55"/>
-        <!-- 팔 -->
-        <path d="M28 86 C22 90 20 96 22 101" fill="none" stroke="#cdc5b6" stroke-width="2.2" stroke-linecap="round"/>
-        <path d="M92 86 C98 90 100 96 98 101" fill="none" stroke="#cdc5b6" stroke-width="2.2" stroke-linecap="round"/>
-        <!-- 눈 -->
-        <ellipse cx="49" cy="66" rx="2.6" ry="3.4" fill="#4a453c"/>
-        <ellipse cx="71" cy="66" rx="2.6" ry="3.4" fill="#4a453c"/>
-        <!-- 입 -->
-        <path d="M58 76 Q60 78 62 76" fill="none" stroke="#4a453c" stroke-width="1.6" stroke-linecap="round"/>
-        <!-- 볼터치 -->
-        <ellipse cx="42" cy="76" rx="4.5" ry="2.6" fill="#e8c9c9" opacity=".5"/>
-        <ellipse cx="78" cy="76" rx="4.5" ry="2.6" fill="#e8c9c9" opacity=".5"/>
-        <!-- 옆구리에 낀 책 -->
-        <g transform="rotate(-8 30 108)">
-          <rect x="18" y="100" width="24" height="17" rx="2.5" fill="#8fa671" stroke="#6f8a55" stroke-width="1.8"/>
-          <line x1="18" y1="104" x2="42" y2="104" stroke="#6f8a55" stroke-width="1.2" opacity=".6"/>
-        </g>
-      </g>
-    </svg>
-  </div>
+  <img id="buddyImg" src="sprites/stand.png" alt="blah 캐릭터">
 </div>
 
 <script>
@@ -451,87 +346,211 @@
   lb.addEventListener("click", () => lb.classList.remove("on"));
   document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
 
-  /* ── 캐릭터: 읽기 → 책 덮기 → 걷기 → 앉기 → 읽기 ── */
+  /* ── 캐릭터: 걷기 사이클 + 랜덤 행동 + 드래그 (시트 원본) ── */
   (function () {
     const buddy  = document.getElementById("buddy");
+    const img    = document.getElementById("buddyImg");
     const bubble = document.getElementById("bubble");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const readLines = ["...", "재밌다", "📖", "한 장만 더"];
-    const walkLines = ["blah", "산책", "🌱", "공연 보러 갈래?", "새 앨범 들었어?"];
+    /* 스프라이트 표시 높이(px) — 걷는 모습 크기로 통일 */
+    const HEIGHTS = {ac_bag:88,ac_cart:82,ac_heart:89,ac_hide:91,ac_plant:87,ac_read:88,ac_rest:81,ac_water:86,ex_angry:117,ex_base:117,ex_curious:120,ex_excited:121,ex_happy:117,ex_sad:115,ex_scared:113,ex_shy:116,ex_sleepy:115,ex_surprised:116,g_base:113,g_foot:112,g_rhythm:105,g_sitplay:105,g_strum1:113,g_strum2:105,jp_big:87,jp_light:85,po_lie:75,po_sit:86,po_sleep:55,run1:90,run2:92,st_back:126,st_diag:130,st_front:129,st_side:130,wdl01:73,wdl02:75,wdl03:72,wdl04:72,wdl05:73,wdl06:72,wdl07:73,wdl08:73,wdl09:75,wdl10:75,wdl11:73,wdl12:74,wdr01:71,wdr02:71,wdr03:73,wdr04:75,wdr05:75,wdr06:76,wdr07:75,wdr08:75,wdr09:77,wdr10:75,wdr11:74,wdr12:72,wl01:79,wl02:82,wl03:82,wl04:80,wl05:79,wl06:79,wl07:80,wl08:81,wl09:80,wl10:81,wr01:80,wr02:80,wr03:80,wr04:80,wr05:80,wr06:80,wr07:81,wr08:80,wr09:79,wr10:80};
+    const S = "sprites/";
+    const pre = {};
+    for (const k in HEIGHTS) { pre[k] = new Image(); pre[k].src = S + k + ".png"; }
+    function show(k) {
+      img.src = S + k + ".png";
+      img.style.height = HEIGHTS[k] + "px";
+    }
 
-    let x = 40;
-    let dir = 1;
-    const SPEED = 0.55;
-    let state = "read";          // read | walk
-    let lastTime = 0;
-    let stateTimer = null;
+    /* 걷기 프레임 시퀀스 (시트 03 걷는 모습) */
+    const seq = n => Array.from({length:n},(_,i)=>i+1);
+    const WALK = {
+      r:  seq(10).map(i => "wr"  + String(i).padStart(2,"0")),
+      l:  seq(10).map(i => "wl"  + String(i).padStart(2,"0")),
+      dr: seq(12).map(i => "wdr" + String(i).padStart(2,"0")),
+      dl: seq(12).map(i => "wdl" + String(i).padStart(2,"0")),
+    };
 
-    function maxX() { return window.innerWidth - buddy.offsetWidth - 8; }
-    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    /* 랜덤 행동 (시트 04·05·06) — 정지 포즈와 애니메이션 행동 혼합 */
+    const IDLES = [
+      { frames:["st_front"], dur:2600 },
+      { frames:["st_side"],  dur:2200 },
+      { frames:["po_sit"],   dur:3200 },
+      { frames:["ac_read"],  dur:4200, line:"..." },
+      { frames:["ac_read"],  dur:4200, line:"..." },
+      { frames:["ac_plant"], dur:3200, line:"자라라" },
+      { frames:["ac_water"], dur:3200 },
+      { frames:["ac_heart"], dur:2600, line:"♥" },
+      { frames:["ac_rest"],  dur:3600 },
+      { frames:["ac_hide"],  dur:2400 },
+      { frames:["ac_cart"],  dur:2800 },
+      { frames:["ex_happy"], dur:2200 },
+      { frames:["ex_curious"], dur:2200 },
+      { frames:["g_strum1","g_strum2"], dur:5200, step:380, line:"♪" },
+      { frames:["g_strum1","g_strum2"], dur:5200, step:380, line:"♪" },
+      { frames:["g_rhythm","g_foot"],   dur:4400, step:420, line:"♪" },
+      { frames:["g_sitplay"], dur:3600, line:"♪" },
+      { frames:["po_lie","po_sleep"], dur:5600, step:1400, line:"zzz" },
+      { frames:["jp_light","st_front"], dur:2400, step:340 },
+      { frames:["ex_happy","jp_big"], dur:2600, step:320 },
+    ];
 
-    function say(text, ms = 2200) {
+    /* 클릭 대사 — 공연 홍보 포함 */
+    const LINES = [
+      "blah!", "안녕 🌱", "새 앨범 들었어?",
+      "08.22 tone studio에서 만나요",
+      "09.12 cj azit 공연 보러 올래요?",
+      "07.18 club evans, 고마웠어요",
+      "티켓 오픈 소식은 인스타에서!",
+      "굿즈는... 다 팔렸어요",
+      "오늘도 조금 자랐어요",
+    ];
+    const pick = a => a[Math.floor(Math.random() * a.length)];
+
+    function say(text, ms = 2400) {
       bubble.textContent = text;
       bubble.classList.add("on");
       clearTimeout(say._t);
       say._t = setTimeout(() => bubble.classList.remove("on"), ms);
     }
 
-    /* 읽기 → (책 덮기) → 걷기 */
-    function startWalking() {
-      if (reduce) return;                      // 동작 줄이기 설정 시 계속 앉아 있음
-      buddy.classList.add("closing");          // 책 탁 덮는 움찔
-      setTimeout(() => {
-        buddy.classList.remove("closing");
-        buddy.classList.add("walking");
-        state = "walk";
-        if (Math.random() < 0.5) dir *= -1;
-        if (Math.random() < 0.4) say(pick(walkLines), 1800);
-        stateTimer = setTimeout(sitDown, 5000 + Math.random() * 7000);
-      }, 450);
+    let x = 40, dir = 1;
+    let speed = 0.55;
+    let state = "idle";                    // idle | walk | drag
+    let stateTimer = null, animTimer = null;
+    let lastTime = 0;
+
+    const maxX = () => window.innerWidth - buddy.offsetWidth - 8;
+    function stopTimers() { clearTimeout(stateTimer); clearInterval(animTimer); }
+
+    /* 멈춰서 랜덤 행동 */
+    function idle() {
+      stopTimers();
+      state = "idle";
+      if (reduce) { show("st_front"); return; }
+      const act = pick(IDLES);
+      let fi = 0;
+      show(act.frames[0]);
+      if (act.line && Math.random() < 0.6) say(act.line, 2000);
+      if (act.frames.length > 1) {
+        animTimer = setInterval(() => {
+          fi = (fi + 1) % act.frames.length;
+          show(act.frames[fi]);
+        }, act.step || 400);
+      }
+      stateTimer = setTimeout(walk, act.dur + Math.random() * 2000);
     }
 
-    /* 걷기 → 앉아서 다시 읽기 */
-    function sitDown() {
-      buddy.classList.remove("walking");
-      state = "read";
-      if (Math.random() < 0.5) say(pick(readLines), 1800);
-      stateTimer = setTimeout(startWalking, 5000 + Math.random() * 8000);
+    /* 걷기 — 프레임 시퀀스 재생, 가끔 대각선/뜀걸음 */
+    function walk(keepDir) {
+      stopTimers();
+      state = "walk";
+      if (!keepDir && Math.random() < 0.5) dir *= -1;
+      const r = Math.random();
+      let frames, frameMs;
+      if (r < 0.62) {                          // 보통 걸음
+        frames = dir === 1 ? WALK.r : WALK.l;
+        speed = 0.55; frameMs = 85;
+      } else if (r < 0.86) {                   // 대각선 걸음
+        frames = dir === 1 ? WALK.dr : WALK.dl;
+        speed = 0.45; frameMs = 95;
+      } else {                                 // 신나서 뜀걸음
+        frames = ["run1","run2"];
+        speed = 1.25; frameMs = 150;
+        if (Math.random() < 0.5) say("다다다", 1400);
+      }
+      let fi = 0;
+      show(frames[0]);
+      animTimer = setInterval(() => {
+        fi = (fi + 1) % frames.length;
+        show(frames[fi]);
+      }, frameMs);
+      stateTimer = setTimeout(idle, 3800 + Math.random() * 5200);
     }
 
     function frame(t) {
       const dt = lastTime ? Math.min(t - lastTime, 50) : 16;
       lastTime = t;
       if (state === "walk") {
-        x += dir * SPEED * (dt / 16);
-        if (x >= maxX()) { x = maxX(); dir = -1; }
-        if (x <= 4)      { x = 4;      dir =  1; }
+        x += dir * speed * (dt / 16);
+        if (x >= maxX()) { x = maxX(); dir = -1; walkTurn(); }
+        if (x <= 4)      { x = 4;      dir =  1; walkTurn(); }
+        buddy.style.left = x + "px";
       }
-      buddy.style.left = x + "px";
-      buddy.style.transform = "scaleX(" + (dir === 1 ? 1 : -1) + ")";
-      bubble.style.transform = "translate(-50%, -6px) scaleX(" + (dir === 1 ? 1 : -1) + ")";
       requestAnimationFrame(frame);
     }
+    function walkTurn() {                      // 벽에 닿으면 반대 방향으로 계속 걷기
+      if (state !== "walk") return;
+      walk(true);
+    }
 
-    /* 클릭: 읽는 중이면 일어나서 걷고, 걷는 중이면 폴짝 */
-    buddy.addEventListener("click", () => {
-      if (state === "read") {
-        clearTimeout(stateTimer);
-        startWalking();
-      } else {
+    /* ── 마우스/터치: 클릭 = 대사, 드래그 = 어디로든 ── */
+    let pStartX = 0, pStartY = 0, grabDX = 0, grabDY = 0, moved = false;
+
+    buddy.addEventListener("pointerdown", e => {
+      buddy.setPointerCapture(e.pointerId);
+      pStartX = e.clientX; pStartY = e.clientY;
+      const rct = buddy.getBoundingClientRect();
+      grabDX = e.clientX - rct.left;
+      grabDY = e.clientY - rct.top;
+      moved = false;
+    });
+
+    buddy.addEventListener("pointermove", e => {
+      if (!buddy.hasPointerCapture(e.pointerId)) return;
+      if (!moved && Math.hypot(e.clientX - pStartX, e.clientY - pStartY) < 8) return;
+      if (!moved) {
+        moved = true;
+        stopTimers();
+        state = "drag";
+        buddy.classList.add("dragging");
+        buddy.classList.remove("bob", "landing");
+        show("ex_surprised");
+        say("!", 1100);
+      }
+      const bw = buddy.offsetWidth, bh = buddy.offsetHeight;
+      let nx = e.clientX - grabDX;
+      let ny = window.innerHeight - (e.clientY - grabDY) - bh;
+      nx = Math.max(0, Math.min(nx, window.innerWidth - bw));
+      ny = Math.max(10, Math.min(ny, window.innerHeight - bh - 6));
+      x = nx;
+      buddy.style.left = nx + "px";
+      buddy.style.bottom = ny + "px";
+    });
+
+    buddy.addEventListener("pointerup", e => {
+      buddy.releasePointerCapture(e.pointerId);
+      buddy.classList.remove("dragging");
+      if (moved) {                             // 놓으면 착지
+        buddy.classList.add("landing");
+        buddy.style.bottom = "10px";
+        show("ex_scared");
+        setTimeout(() => {
+          buddy.classList.remove("landing");
+          show("ex_happy");
+          setTimeout(idle, 700);
+        }, 240);
+      } else {                                 // 클릭
         buddy.classList.remove("hop");
         void buddy.offsetWidth;
         buddy.classList.add("hop");
-        say(pick(walkLines));
+        show(pick(["ex_happy","ex_excited","jp_big","ex_curious"]));
+        say(pick(LINES));
         setTimeout(() => buddy.classList.remove("hop"), 550);
+        stopTimers();
+        stateTimer = setTimeout(idle, 1500);
       }
     });
 
-    window.addEventListener("resize", () => { if (x > maxX()) x = maxX(); });
+    window.addEventListener("resize", () => {
+      if (x > maxX()) { x = maxX(); buddy.style.left = x + "px"; }
+    });
 
     requestAnimationFrame(frame);
-    stateTimer = setTimeout(startWalking, 4500 + Math.random() * 4000);   // 처음엔 잠시 독서
-    setTimeout(() => say("...", 1600), 1500);
+    show("st_front");
+    stateTimer = setTimeout(walk, 2500);
+    setTimeout(() => say("blah", 1800), 1100);
   })();
 </script>
 </body>
