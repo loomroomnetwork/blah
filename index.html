@@ -4,24 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>blah</title>
-<meta name="description" content="blah — music, live, goods">
+<meta name="description" content="blah — official website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <!-- ═══════════════════════════════════════════════════════
      blah official — 수정 방법
-     · 링크 바꾸기: href="..." 부분만 실제 주소로 교체
-     · 공연 사진 추가: <div class="show-photos"> 안에 <img> 복사
-     · 굿즈 판매 재개: <li class="item soldout"> 에서 soldout 만 삭제
-     · 캐릭터 끄기: 맨 아래 <div id="buddy"> 블록 삭제
-     · 캐릭터 대사: <script> 안 lines = [...] 수정
+     · 티켓 오픈 시: shows 목록의 href="#" 를 예매 주소로 교체
+     · 음악 링크: music 목록의 href 교체
+     · 굿즈 재판매: <li class="item soldout"> 에서 soldout 삭제
      ═══════════════════════════════════════════════════════ -->
 <style>
   :root {
     --bg: #ffffff;
     --ink: #111111;
     --soft: #8a8a8a;
-    --accent: #111111;
     --line: #e8e8e8;
     --red: #c0392b;
   }
@@ -33,215 +30,145 @@
     font-family: "EB Garamond", "Apple SD Gothic Neo", Georgia, serif;
     font-size: 17px;
     line-height: 1.7;
-    letter-spacing: .02em;
+    letter-spacing: .01em;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
   }
   a { color: inherit; text-decoration: none; }
-  main { max-width: 560px; margin: 0 auto; padding: 11vh 24px 18vh; }
-  @media (max-width: 720px) {
-    .side-nav { position: static; padding: 26px 0 0 26px; }
-    main { padding-top: 5vh; }
+
+  /* ─ 좌하단 코너 내비 (레퍼런스 형식, 전 페이지 공통) ─ */
+  nav.corner {
+    position: fixed;
+    left: 26px;
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    z-index: 90;
+    display: flex; flex-direction: column;
+    font-size: 18px; line-height: 1.75;
+    background: var(--bg);
+    padding: 6px 10px 4px 2px;
   }
+  nav.corner a { width: fit-content; border-bottom: 1px solid transparent; transition: border-color .15s ease; }
+  nav.corner a:hover, nav.corner a.on { border-bottom-color: var(--ink); }
+  nav.corner .brand { font-weight: 600; }
 
-  /* ─ 로고 (필기체) ─ */
-  header { text-align: center; margin-bottom: 10vh; }
-  .logo { display: none; }
+  main { max-width: 560px; margin: 0 auto; padding: 6vh 22px 230px; }
 
-  header nav { color: var(--soft); font-size: 12px; margin-top: 10px; letter-spacing: .25em; text-transform: uppercase; }
-  header nav a { transition: color .18s ease; }
-  header nav a:hover { color: var(--accent); }
+  /* ─ 페이지 전환 ─ */
+  .view { display: none; }
+  .view.on { display: block; animation: viewIn .3s ease; }
+  @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  /* ─ 섹션 ─ */
-  section { margin-bottom: 9vh; }
   h2 {
     font-size: 13px; font-weight: 400; letter-spacing: .3em;
     text-transform: uppercase; color: var(--soft);
-    margin-bottom: 24px; text-align: center;
+    margin-bottom: 34px; text-align: center;
   }
 
+  /* ─ 랜딩: 이미지가 뷰포트 안에 온전히 들어오도록 ─ */
+  #view-home { text-align: center; padding-top: 3vh; }
+  .home-cover img {
+    width: auto; max-width: min(86vw, 440px);
+    max-height: 58dvh;
+    height: auto; display: inline-block;
+  }
+  .home-caption { margin-top: 20px; font-size: 15.5px; }
+  .home-caption em { font-style: italic; }
+  .home-foot { margin-top: 6vh; font-size: 12px; color: var(--soft); }
 
-  ul { list-style: none; text-align: center; }
-
-  .links li { padding: 7px 0; }
-  .links a { display: inline-block; border-bottom: 1px solid transparent; transition: all .18s ease; }
-  .links a:hover { border-bottom-color: var(--ink); transform: translateY(-1px); }
-  .links .tag { color: var(--soft); font-size: 12px; margin-left: 8px; }
-  .new::after { content: " ✦"; color: var(--accent); font-size: 11px; }
-
-  /* ─ 영상 ─ */
-  .video { position: relative; width: 100%; aspect-ratio: 16/9; background: var(--line); border-radius: 10px; overflow: hidden; }
+  /* ─ MUSIC: 스마트링크 형식 (서비스 목록 + Play) ─ */
+  .service-list { border-top: 1px solid var(--line); }
+  .service-list li {
+    list-style: none;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .service-name { font-size: 19px; }
+  .service-list a.btn {
+    font-size: 14px; letter-spacing: .06em;
+    border: 1px solid var(--ink); border-radius: 999px;
+    padding: 6px 22px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .service-list a.btn:hover { background: var(--ink); color: var(--bg); }
+  .music-video { margin-top: 8vh; }
+  .video {
+    position: relative; width: 100%; aspect-ratio: 16/9;
+    background: var(--line); overflow: hidden;
+  }
   .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-  /* ─ 공연 ─ */
-  .show { text-align: center; padding-bottom: 26px; margin-bottom: 26px; border-bottom: 1px solid var(--line); }
-  .show:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
-  .show-title { font-size: 15px; }
-  .show-title .tag { color: var(--soft); font-size: 12px; margin-left: 8px; }
-  .show-note { font-size: 11px; color: var(--soft); letter-spacing: .18em; text-transform: uppercase; margin-top: 3px; }
-
-  /* 사진 캐러셀: 가운데 큰 사진 + 좌우 작은 사진, 좌/우 클릭으로 넘김 */
-  .carousel {
-    margin-top: 16px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
+  /* ─ LIVE: 텍스트 리스트 형식 ─ */
+  .showlist { text-align: center; }
+  .showlist .gig { padding: 5vh 0; }
+  .showlist .gig + .gig { border-top: 1px solid var(--line); }
+  .gig .date  { font-size: 21px; }
+  .gig .venue { font-size: 21px; margin-top: 12px; }
+  .gig .city  { font-size: 21px; font-weight: 600; }
+  .gig .addr  { font-size: 14px; color: var(--soft); margin-top: 2px; }
+  .gig .status { font-size: 16px; color: var(--soft); margin-top: 10px; }
+  .gig a.tickets {
+    display: inline-block; margin-top: 14px;
+    font-size: 19px; font-weight: 600;
+    border-bottom: 2px solid var(--ink); padding-bottom: 1px;
   }
-  .carousel figure {
-    margin: 0; border-radius: 10px; overflow: hidden;
-    background: var(--line); flex-shrink: 0;
+  .gig-photos {
+    display: flex; gap: 8px; margin-top: 22px;
+    overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none;
+    justify-content: flex-start;
   }
-  .carousel img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .car-side {
-    width: 18%; aspect-ratio: 3 / 4; opacity: .45; cursor: pointer;
-    transition: opacity .2s ease, transform .2s ease;
+  .gig-photos::-webkit-scrollbar { display: none; }
+  .gig-photos img {
+    height: 120px; width: auto; flex-shrink: 0; cursor: zoom-in;
   }
-  .car-side:hover { opacity: .8; transform: translateY(-2px); }
-  .car-main {
-    width: 58%; aspect-ratio: 3 / 4; cursor: zoom-in;
-    box-shadow: 0 8px 26px rgba(26,26,26,.12);
-  }
-  .car-main img { transition: opacity .22s ease; }
-  .car-dots { text-align: center; margin-top: 10px; color: var(--line); font-size: 11px; letter-spacing: .4em; }
-  .car-dots span { cursor: pointer; }
-  .car-dots .on { color: var(--accent); }
 
   /* ─ 라이트박스 ─ */
   #lightbox {
-    position: fixed; inset: 0; background: rgba(26,26,26,.86);
+    position: fixed; inset: 0; background: rgba(17,17,17,.88);
     display: none; align-items: center; justify-content: center;
-    z-index: 200; cursor: zoom-out; padding: 24px;
+    z-index: 200; cursor: zoom-out; padding: 22px;
   }
   #lightbox.on { display: flex; }
-  #lightbox img { max-width: 100%; max-height: 88vh; border-radius: 8px; }
+  #lightbox img { max-width: 100%; max-height: 88vh; }
 
-  /* ─ 굿즈 ─ */
-  .shop { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .item { text-align: center; }
-  .thumb {
-    position: relative; aspect-ratio: 1/1; background: #f0ebe2;
-    border: 1px solid var(--line); border-radius: 12px;
-    margin-bottom: 10px; overflow: hidden;
+  /* ─ GOODS: 2열 상품 그리드 형식 ─ */
+  .shop {
+    list-style: none;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 34px 22px;
   }
+  .item { text-align: left; }
+  .thumb { position: relative; aspect-ratio: 1/1; overflow: hidden; background: #f4f4f4; }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .item .name { font-size: 13px; }
-  .item .price { font-size: 12px; color: var(--soft); }
+  .item .name {
+    margin-top: 14px;
+    font-size: 16px; letter-spacing: .08em; text-transform: uppercase;
+    line-height: 1.5;
+  }
+  .item .price { margin-top: 6px; font-size: 16px; }
   .item.soldout .thumb img { opacity: .55; filter: saturate(.5); }
-  .item.soldout .price { text-decoration: line-through; }
+  .item.soldout .price { text-decoration: line-through; color: var(--soft); }
   .stamp {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%,-50%) rotate(-8deg);
     color: var(--red); border: 2.5px solid var(--red); border-radius: 4px;
-    padding: 4px 12px; font-size: 13px; font-weight: 700;
-    letter-spacing: .25em; text-transform: uppercase;
-    background: rgba(250,247,242,.55); white-space: nowrap;
+    padding: 3px 10px; font-size: 12px; font-weight: 600;
+    letter-spacing: .22em; text-transform: uppercase;
+    background: rgba(255,255,255,.55); white-space: nowrap;
   }
-  .state { font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--red); text-transform: uppercase; margin-top: 2px; }
+  .state { margin-top: 2px; font-size: 13px; font-weight: 600; letter-spacing: .16em; color: var(--red); text-transform: uppercase; }
 
-  /* ─ 푸터 ─ */
-  footer {
-    text-align: center; color: var(--soft); font-size: 12px;
-    border-top: 1px solid var(--line); padding-top: 32px;
-  }
-  footer a { border-bottom: 1px solid var(--line); }
-  footer a:hover { border-bottom-color: var(--ink); color: var(--ink); }
-  .sns { margin: 16px 0 26px; display: flex; justify-content: center; gap: 22px; }
-  .sns a { border: none; line-height: 0; }
-  .sns svg { width: 22px; height: 22px; fill: var(--ink); transition: fill .18s ease, transform .18s ease; }
-  .sns a:hover svg { fill: var(--accent); transform: translateY(-2px); }
-
-  /* ═══════ 돌아다니는 캐릭터 (시트 원본 스프라이트) ═══════ */
-  #buddy {
-    position: fixed; bottom: 10px; left: 40px;
-    height: 80px; z-index: 150;
-    display: flex; align-items: flex-end;
-    cursor: grab; user-select: none; touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  #buddy.dragging { cursor: grabbing; }
-  #buddy img { width: auto; display: block; pointer-events: none; }
-  #buddy.bob img { animation: stepBob .36s ease-in-out infinite; }
-  @keyframes stepBob {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(-2.5px); }
-  }
-  #buddy.hop img { animation: hopUp .5s cubic-bezier(.3,1.4,.5,1); }
-  @keyframes hopUp {
-    0%   { transform: translateY(0); }
-    35%  { transform: translateY(-20px); }
-    100% { transform: translateY(0); }
-  }
-  #buddy.landing { transition: bottom .22s cubic-bezier(.3,1.3,.5,1), left .22s ease; }
-
-  #bubble {
-    position: absolute; bottom: 100%; left: 50%;
-    transform: translate(-50%, -8px);
-    background: var(--bg); border: 1px solid var(--line);
-    border-radius: 12px; padding: 5px 11px;
-    font-size: 11px; color: var(--ink); white-space: nowrap;
-    opacity: 0; transition: opacity .25s ease;
-    box-shadow: 0 4px 14px rgba(26,26,26,.08);
-  }
-  #bubble.on { opacity: 1; }
-  #bubble::after {
-    content: ""; position: absolute; top: 100%; left: 50%;
-    margin-left: -4px; border: 4px solid transparent;
-    border-top-color: var(--line);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    #buddy.bob img { animation: none; }
-  }
-  @media (max-width: 480px) {
-    main { padding-top: 8vh; }
-    .logo { font-size: 60px; }
-    .shop { gap: 14px; }
-    .show-photos img { height: 108px; }
-    #buddy { width: 52px; height: 66px; }
-  }
-
-  /* ─ 페이지(뷰) 전환 ─ */
-  .view { display: none; }
-  .view.on { display: block; animation: viewIn .35s ease; }
-  @keyframes viewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-
-  /* ─ 좌상단 카테고리 내비 (전 페이지 공통) ─ */
-  .side-nav {
-    position: fixed; top: 30px; left: 34px; z-index: 90;
-    display: flex; flex-direction: column; gap: 2px;
-    font-size: 19px; line-height: 1.55;
-  }
-  .side-nav a { width: fit-content; border-bottom: 1px solid transparent; transition: border-color .15s ease; }
-  .side-nav a:hover, .side-nav a.on { border-bottom-color: var(--ink); }
-  .side-nav .brand { font-weight: 500; margin-bottom: 6px; }
-
-  /* ─ 랜딩 ─ */
-  #view-home { text-align: center; }
-  .home-cover { margin-top: 6vh; }
-  .home-cover img {
-    width: min(74vw, 380px); height: auto; display: inline-block;
-  }
-  .home-caption { margin-top: 22px; font-size: 15px; letter-spacing: .04em; color: var(--ink); }
-  .home-caption em { font-style: italic; }
-  .home-foot { margin-top: 10vh; font-size: 12.5px; color: var(--soft); }
-
-  /* ─ 서브 페이지 상단 ─ */
-  .page-top { display: none; }
-  .page-top .logo-s { display: none; }
-  .back {
-    display: inline-block; margin-top: 6px;
-    font-size: 11px; letter-spacing: .25em; text-transform: uppercase; color: var(--soft);
-    border-bottom: 1px solid transparent; transition: all .18s ease;
-  }
-  .back:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  /* ─ CONTACT ─ */
+  #view-contact { text-align: center; }
+  #view-contact .mail { font-size: 20px; border-bottom: 1px solid var(--line); }
+  #view-contact .mail:hover { border-bottom-color: var(--ink); }
+  .sns { margin: 34px 0 0; display: flex; justify-content: center; gap: 24px; }
+  .sns a { line-height: 0; }
+  .sns svg { width: 21px; height: 21px; fill: var(--ink); transition: opacity .15s ease; }
+  .sns a:hover svg { opacity: .5; }
+  .copy { margin-top: 9vh; font-size: 12.5px; color: var(--soft); text-align: center; }
 </style>
 </head>
 <body>
-<nav class="side-nav" id="sideNav">
-  <a href="#/" class="brand">blah</a>
-  <a href="#/music" data-r="music">music</a>
-  <a href="#/live" data-r="live">live</a>
-  <a href="#/goods" data-r="goods">goods</a>
-  <a href="#/contact" data-r="contact">contact</a>
-</nav>
 
 <main>
 
@@ -256,94 +183,99 @@
 
   <!-- ═══ MUSIC ═══ -->
   <section class="view" id="view-music">
-    
-
-    <section id="music">
-      <h2>Listen</h2>
-      <ul class="links">
-      <li><a href="https://open.spotify.com/track/1OF94wxgNL6Gvbswew0tL0" target="_blank" class="new">「Youth」<span class="tag">Spotify</span></a></li>
-      <li><a href="https://youtu.be/Th3GJB4aKkA?si=eTOSHE9c1f0SujbO" target="_blank">「Youth」<span class="tag">YouTube Music</span></a></li>
-      <li><a href="https://www.melon.com/artist/timeline.htm?artistId=2645733" target="_blank">「Youth」<span class="tag">멜론</span></a></li>
+    <h2>Listen — 「Youth」</h2>
+    <ul class="service-list">
+      <li>
+        <span class="service-name">Spotify</span>
+        <a class="btn" href="https://open.spotify.com/track/1OF94wxgNL6Gvbswew0tL0" target="_blank">Play</a>
+      </li>
+      <li>
+        <span class="service-name">YouTube Music</span>
+        <a class="btn" href="https://youtu.be/Th3GJB4aKkA?si=eTOSHE9c1f0SujbO" target="_blank">Play</a>
+      </li>
+      <li>
+        <span class="service-name">Melon</span>
+        <a class="btn" href="https://www.melon.com/artist/timeline.htm?artistId=2645733" target="_blank">Play</a>
+      </li>
     </ul>
-    </section>
-    <section id="video">
+
+    <div class="music-video">
       <h2>Live Video</h2>
       <div class="video">
-      <iframe src="https://www.youtube-nocookie.com/embed/Th3GJB4aKkA" title="blah live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+        <iframe src="https://www.youtube-nocookie.com/embed/Th3GJB4aKkA" title="blah live" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy"></iframe>
+      </div>
     </div>
-      <ul class="links" style="margin-top:12px">
-      <li><a href="https://youtu.be/Th3GJB4aKkA?si=Fe3j9qhhjcdu4PDi" target="_blank">Watch on YouTube <span class="tag">↗</span></a></li>
-    </ul>
-    </section>
   </section>
 
   <!-- ═══ LIVE ═══ -->
   <section class="view" id="view-live">
-    
+    <h2>Shows</h2>
+    <div class="showlist">
 
-    <section id="live">
-      <h2>Shows</h2>
-      <div class="show">
-      <p class="show-title">07.18 club evans <span class="tag">서울 마포구 와우산로 63</span></p>
-      <!-- 좌/우 사진 클릭 = 넘기기, 가운데 사진 클릭 = 크게 보기 -->
-      <div class="carousel">
-        <figure class="car-side" id="carPrev"><img src="" alt=""></figure>
-        <figure class="car-main" id="carMain"><img src="piano.png" alt=""></figure>
-        <figure class="car-side" id="carNext"><img src="" alt=""></figure>
+      <div class="gig">
+        <p class="date">Jul 18, 2026</p>
+        <p class="venue">Club Evans</p>
+        <p class="city">Seoul, KR</p>
+        <p class="addr">서울 마포구 와우산로 63</p>
+        <p class="status">Ended</p>
+        <div class="gig-photos">
+          <img src="piano.png" alt="">
+          <img src="rehearsal.png" alt="">
+          <img src="postits.png" alt="">
+          <img src="towel.png" alt="">
+        </div>
       </div>
-      <div class="car-dots" id="carDots"></div>
-    </div>
 
-    <div class="show">
-      <p class="show-title">08.22 tone studio <span class="tag">서울 마포구 성산동 239-13</span></p>
-      <p class="show-note">Upcoming</p>
-    </div>
+      <div class="gig">
+        <p class="date">Aug 22, 2026</p>
+        <p class="venue">Tone Studio</p>
+        <p class="city">Seoul, KR</p>
+        <p class="addr">서울 마포구 성산동 239-13</p>
+        <!-- 예매 오픈 시 href="#" 를 예매 주소로 교체 -->
+        <a class="tickets" href="#">Tickets</a>
+      </div>
 
-    <div class="show">
-      <p class="show-title">09.12 cj azit <span class="tag">서울 마포구 창전로 14</span></p>
-      <p class="show-note">Upcoming</p>
+      <div class="gig">
+        <p class="date">Sep 12, 2026</p>
+        <p class="venue">CJ Azit Gwangheungchang</p>
+        <p class="city">Seoul, KR</p>
+        <p class="addr">서울 마포구 창전로 14</p>
+        <a class="tickets" href="#">Tickets</a>
+      </div>
+
     </div>
-  
-    </section>
   </section>
 
   <!-- ═══ GOODS ═══ -->
   <section class="view" id="view-goods">
-    
-
-    <section id="shop">
-      <h2>Goods</h2>
-      <ul class="shop">
+    <h2>Goods</h2>
+    <ul class="shop">
       <li class="item soldout">
         <div class="thumb">
           <img src="normal-life-cd.png" alt="4th EP Normal Life CD">
           <span class="stamp">Sold Out</span>
         </div>
-        <div class="name">4th EP 『Normal Life』 CD</div>
-        <div class="price">₩22,000</div>
-        <div class="state">Sold Out</div>
+        <p class="name">Normal Life — CD</p>
+        <p class="price">₩22,000</p>
+        <p class="state">Sold Out</p>
       </li>
       <li class="item soldout">
         <div class="thumb">
           <img src="archive-lp.png" alt="23-26 Archive LP">
           <span class="stamp">Sold Out</span>
         </div>
-        <div class="name">『23–26 Archive』 LP</div>
-        <div class="price">₩48,000</div>
-        <div class="state">Sold Out</div>
+        <p class="name">23–26 Archive — LP</p>
+        <p class="price">₩48,000</p>
+        <p class="state">Sold Out</p>
       </li>
     </ul>
-    </section>
   </section>
 
   <!-- ═══ CONTACT ═══ -->
   <section class="view" id="view-contact">
-    
-
-    <footer style="border-top:0; padding-top:0;">
-      <p>contact</p>
-      <p><a href="mailto:loomroomnetwork@gmail.com">loomroomnetwork@gmail.com</a></p>
-      <div class="sns">
+    <h2>Contact</h2>
+    <p><a class="mail" href="mailto:loomroomnetwork@gmail.com">loomroomnetwork@gmail.com</a></p>
+    <div class="sns">
       <a href="https://youtube.com/@blah-np5hr" target="_blank" aria-label="YouTube">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4L15.8 12l-6.2 3.6z"/></svg>
       </a>
@@ -354,262 +286,23 @@
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.6 5.8a5.4 5.4 0 0 1-3.2-2.9 5.5 5.5 0 0 1-.4-1.9h-3.5v13.9a3 3 0 0 1-3 2.9 3 3 0 0 1-3-3 3 3 0 0 1 3.9-2.8V8.4a6.5 6.5 0 0 0-.9-.1 6.5 6.5 0 1 0 6.5 6.5V8.5a8.8 8.8 0 0 0 5 1.6V6.6a5.4 5.4 0 0 1-1.4-.8z"/></svg>
       </a>
     </div>
-
-      <p>© 2026 LoomRoomNetwork. All rights reserved.</p>
-    </footer>
+    <p class="copy">© 2026 LoomRoomNetwork. All rights reserved.</p>
   </section>
 
 </main>
 
+<nav class="corner" id="cornerNav">
+  <a href="#/" class="brand">blah</a>
+  <a href="#/music" data-r="music">music</a>
+  <a href="#/live" data-r="live">live</a>
+  <a href="#/goods" data-r="goods">goods</a>
+  <a href="#/contact" data-r="contact">contact</a>
+</nav>
+
 <!-- 사진 크게 보기 -->
 <div id="lightbox"><img src="" alt=""></div>
 
-<!-- 돌아다니는 캐릭터 (시트 스프라이트) -->
-<div id="buddy">
-  <div id="bubble"></div>
-  <img id="buddyImg" src="sprites/st_front.png" alt="blah 캐릭터">
-</div>
-
 <script>
-  /* ── 사진 캐러셀 ── */
-  const photos = ["piano.png", "rehearsal.png", "postits.png", "towel.png"];
-  let pIdx = 0;
-  const mainEl = document.querySelector("#carMain img");
-  const prevEl = document.querySelector("#carPrev img");
-  const nextEl = document.querySelector("#carNext img");
-  const dotsEl = document.getElementById("carDots");
-
-  function renderCar() {
-    const n = photos.length;
-    mainEl.src = photos[pIdx];
-    prevEl.src = photos[(pIdx - 1 + n) % n];
-    nextEl.src = photos[(pIdx + 1) % n];
-    dotsEl.innerHTML = photos.map((_, i) =>
-      `<span class="${i === pIdx ? "on" : ""}" data-i="${i}">●</span>`).join(" ");
-  }
-  document.getElementById("carPrev").addEventListener("click", () => { pIdx = (pIdx - 1 + photos.length) % photos.length; renderCar(); });
-  document.getElementById("carNext").addEventListener("click", () => { pIdx = (pIdx + 1) % photos.length; renderCar(); });
-  dotsEl.addEventListener("click", e => {
-    if (e.target.dataset.i !== undefined) { pIdx = Number(e.target.dataset.i); renderCar(); }
-  });
-  renderCar();
-
-  /* ── 가운데 사진 크게 보기 ── */
-  const lb = document.getElementById("lightbox");
-  const lbImg = lb.querySelector("img");
-  document.getElementById("carMain").addEventListener("click", () => {
-    lbImg.src = photos[pIdx]; lb.classList.add("on");
-  });
-  lb.addEventListener("click", () => lb.classList.remove("on"));
-  document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
-
-  /* ── 캐릭터: 걷기 사이클 + 랜덤 행동 + 드래그 (시트 원본) ── */
-  (function () {
-    const buddy  = document.getElementById("buddy");
-    const img    = document.getElementById("buddyImg");
-    const bubble = document.getElementById("bubble");
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    /* 스프라이트 표시 높이(px) — 걷는 모습 크기로 통일 */
-    const HEIGHTS = {ac_bag:88,ac_cart:82,ac_heart:89,ac_hide:91,ac_plant:87,ac_read:88,ac_rest:81,ac_water:86,ex_angry:117,ex_base:117,ex_curious:120,ex_excited:121,ex_happy:117,ex_sad:115,ex_scared:113,ex_shy:116,ex_sleepy:115,ex_surprised:116,g_base:113,g_foot:112,g_rhythm:105,g_sitplay:105,g_strum1:113,g_strum2:105,jp_big:87,jp_light:85,po_lie:75,po_sit:86,po_sleep:55,run1:90,run2:92,st_back:126,st_diag:130,st_front:129,st_side:130,wdl01:73,wdl02:75,wdl03:72,wdl04:72,wdl05:73,wdl06:72,wdl07:73,wdl08:73,wdl09:75,wdl10:75,wdl11:73,wdl12:74,wdr01:71,wdr02:71,wdr03:73,wdr04:75,wdr05:75,wdr06:76,wdr07:75,wdr08:75,wdr09:77,wdr10:75,wdr11:74,wdr12:72,wl01:79,wl02:82,wl03:82,wl04:80,wl05:79,wl06:79,wl07:80,wl08:81,wl09:80,wl10:81,wr01:80,wr02:80,wr03:80,wr04:80,wr05:80,wr06:80,wr07:81,wr08:80,wr09:79,wr10:80};
-    const S = "sprites/";
-    const pre = {};
-    for (const k in HEIGHTS) { pre[k] = new Image(); pre[k].src = S + k + ".png"; }
-    function show(k) {
-      img.src = S + k + ".png";
-      img.style.height = HEIGHTS[k] + "px";
-    }
-
-    /* 걷기 프레임 시퀀스 (시트 03 걷는 모습) */
-    const seq = n => Array.from({length:n},(_,i)=>i+1);
-    const WALK = {
-      r:  seq(10).map(i => "wr"  + String(i).padStart(2,"0")),
-      l:  seq(10).map(i => "wl"  + String(i).padStart(2,"0")),
-      dr: seq(12).map(i => "wdr" + String(i).padStart(2,"0")),
-      dl: seq(12).map(i => "wdl" + String(i).padStart(2,"0")),
-    };
-
-    /* 랜덤 행동 (시트 04·05·06) — 정지 포즈와 애니메이션 행동 혼합 */
-    const IDLES = [
-      { frames:["st_front"], dur:2600 },
-      { frames:["st_side"],  dur:2200 },
-      { frames:["po_sit"],   dur:3200 },
-      { frames:["ac_read"],  dur:4200, line:"..." },
-      { frames:["ac_read"],  dur:4200, line:"..." },
-      { frames:["ac_plant"], dur:3200, line:"자라라" },
-      { frames:["ac_water"], dur:3200 },
-      { frames:["ac_heart"], dur:2600, line:"♥" },
-      { frames:["ac_rest"],  dur:3600 },
-      { frames:["ac_hide"],  dur:2400 },
-      { frames:["ac_cart"],  dur:2800 },
-      { frames:["ex_happy"], dur:2200 },
-      { frames:["ex_curious"], dur:2200 },
-      { frames:["g_strum1","g_strum2"], dur:5200, step:380, line:"♪" },
-      { frames:["g_strum1","g_strum2"], dur:5200, step:380, line:"♪" },
-      { frames:["g_rhythm","g_foot"],   dur:4400, step:420, line:"♪" },
-      { frames:["g_sitplay"], dur:3600, line:"♪" },
-      { frames:["po_lie","po_sleep"], dur:5600, step:1400, line:"zzz" },
-      { frames:["jp_light","st_front"], dur:2400, step:340 },
-      { frames:["ex_happy","jp_big"], dur:2600, step:320 },
-    ];
-
-    /* 클릭 대사 — 공연 홍보 포함 */
-    const LINES = [
-      "blah!", "안녕 🌱", "새 앨범 들었어?",
-      "08.22 tone studio에서 만나요",
-      "09.12 cj azit 공연 보러 올래요?",
-      "07.18 club evans, 고마웠어요",
-      "티켓 오픈 소식은 인스타에서!",
-      "굿즈는... 다 팔렸어요",
-      "오늘도 조금 자랐어요",
-    ];
-    const pick = a => a[Math.floor(Math.random() * a.length)];
-
-    function say(text, ms = 2400) {
-      bubble.textContent = text;
-      bubble.classList.add("on");
-      clearTimeout(say._t);
-      say._t = setTimeout(() => bubble.classList.remove("on"), ms);
-    }
-
-    let x = 40, dir = 1;
-    let speed = 0.55;
-    let state = "idle";                    // idle | walk | drag
-    let stateTimer = null, animTimer = null;
-    let lastTime = 0;
-
-    const maxX = () => window.innerWidth - buddy.offsetWidth - 8;
-    function stopTimers() { clearTimeout(stateTimer); clearInterval(animTimer); }
-
-    /* 멈춰서 랜덤 행동 */
-    function idle() {
-      stopTimers();
-      state = "idle";
-      if (reduce) { show("st_front"); return; }
-      const act = pick(IDLES);
-      let fi = 0;
-      show(act.frames[0]);
-      if (act.line && Math.random() < 0.6) say(act.line, 2000);
-      if (act.frames.length > 1) {
-        animTimer = setInterval(() => {
-          fi = (fi + 1) % act.frames.length;
-          show(act.frames[fi]);
-        }, act.step || 400);
-      }
-      stateTimer = setTimeout(walk, act.dur + Math.random() * 2000);
-    }
-
-    /* 걷기 — 프레임 시퀀스 재생, 가끔 대각선/뜀걸음 */
-    function walk(keepDir) {
-      stopTimers();
-      state = "walk";
-      if (!keepDir && Math.random() < 0.5) dir *= -1;
-      const r = Math.random();
-      let frames, frameMs;
-      if (r < 0.62) {                          // 보통 걸음
-        frames = dir === 1 ? WALK.r : WALK.l;
-        speed = 0.55; frameMs = 85;
-      } else if (r < 0.86) {                   // 대각선 걸음
-        frames = dir === 1 ? WALK.dr : WALK.dl;
-        speed = 0.45; frameMs = 95;
-      } else {                                 // 신나서 뜀걸음
-        frames = ["run1","run2"];
-        speed = 1.25; frameMs = 150;
-        if (Math.random() < 0.5) say("다다다", 1400);
-      }
-      let fi = 0;
-      show(frames[0]);
-      animTimer = setInterval(() => {
-        fi = (fi + 1) % frames.length;
-        show(frames[fi]);
-      }, frameMs);
-      stateTimer = setTimeout(idle, 3800 + Math.random() * 5200);
-    }
-
-    function frame(t) {
-      const dt = lastTime ? Math.min(t - lastTime, 50) : 16;
-      lastTime = t;
-      if (state === "walk") {
-        x += dir * speed * (dt / 16);
-        if (x >= maxX()) { x = maxX(); dir = -1; walkTurn(); }
-        if (x <= 4)      { x = 4;      dir =  1; walkTurn(); }
-        buddy.style.left = x + "px";
-      }
-      requestAnimationFrame(frame);
-    }
-    function walkTurn() {                      // 벽에 닿으면 반대 방향으로 계속 걷기
-      if (state !== "walk") return;
-      walk(true);
-    }
-
-    /* ── 마우스/터치: 클릭 = 대사, 드래그 = 어디로든 ── */
-    let pStartX = 0, pStartY = 0, grabDX = 0, grabDY = 0, moved = false;
-
-    buddy.addEventListener("pointerdown", e => {
-      buddy.setPointerCapture(e.pointerId);
-      pStartX = e.clientX; pStartY = e.clientY;
-      const rct = buddy.getBoundingClientRect();
-      grabDX = e.clientX - rct.left;
-      grabDY = e.clientY - rct.top;
-      moved = false;
-    });
-
-    buddy.addEventListener("pointermove", e => {
-      if (!buddy.hasPointerCapture(e.pointerId)) return;
-      if (!moved && Math.hypot(e.clientX - pStartX, e.clientY - pStartY) < 8) return;
-      if (!moved) {
-        moved = true;
-        stopTimers();
-        state = "drag";
-        buddy.classList.add("dragging");
-        buddy.classList.remove("bob", "landing");
-        show("ex_surprised");
-        say("!", 1100);
-      }
-      const bw = buddy.offsetWidth, bh = buddy.offsetHeight;
-      let nx = e.clientX - grabDX;
-      let ny = window.innerHeight - (e.clientY - grabDY) - bh;
-      nx = Math.max(0, Math.min(nx, window.innerWidth - bw));
-      ny = Math.max(10, Math.min(ny, window.innerHeight - bh - 6));
-      x = nx;
-      buddy.style.left = nx + "px";
-      buddy.style.bottom = ny + "px";
-    });
-
-    buddy.addEventListener("pointerup", e => {
-      buddy.releasePointerCapture(e.pointerId);
-      buddy.classList.remove("dragging");
-      if (moved) {                             // 놓으면 착지
-        buddy.classList.add("landing");
-        buddy.style.bottom = "10px";
-        show("ex_scared");
-        setTimeout(() => {
-          buddy.classList.remove("landing");
-          show("ex_happy");
-          setTimeout(idle, 700);
-        }, 240);
-      } else {                                 // 클릭
-        buddy.classList.remove("hop");
-        void buddy.offsetWidth;
-        buddy.classList.add("hop");
-        show(pick(["ex_happy","ex_excited","jp_big","ex_curious"]));
-        say(pick(LINES));
-        setTimeout(() => buddy.classList.remove("hop"), 550);
-        stopTimers();
-        stateTimer = setTimeout(idle, 1500);
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      if (x > maxX()) { x = maxX(); buddy.style.left = x + "px"; }
-    });
-
-    requestAnimationFrame(frame);
-    show("st_front");
-    stateTimer = setTimeout(walk, 2500);
-    setTimeout(() => say("blah", 1800), 1100);
-  })();
-
   /* ── 카테고리 라우터 ── */
   (function () {
     const views = document.querySelectorAll(".view");
@@ -618,12 +311,23 @@
       const target = document.getElementById("view-" + h) || document.getElementById("view-home");
       views.forEach(v => v.classList.remove("on"));
       target.classList.add("on");
-      document.querySelectorAll("#sideNav a[data-r]").forEach(a =>
+      document.querySelectorAll("#cornerNav a[data-r]").forEach(a =>
         a.classList.toggle("on", a.dataset.r === h));
       window.scrollTo(0, 0);
     }
     window.addEventListener("hashchange", route);
     route();
+  })();
+
+  /* ── 공연 사진 크게 보기 ── */
+  (function () {
+    const lb = document.getElementById("lightbox");
+    const lbImg = lb.querySelector("img");
+    document.querySelectorAll(".gig-photos img").forEach(img => {
+      img.addEventListener("click", () => { lbImg.src = img.src; lb.classList.add("on"); });
+    });
+    lb.addEventListener("click", () => lb.classList.remove("on"));
+    document.addEventListener("keydown", e => { if (e.key === "Escape") lb.classList.remove("on"); });
   })();
 </script>
 </body>
